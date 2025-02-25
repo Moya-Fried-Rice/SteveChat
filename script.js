@@ -20,8 +20,8 @@ document.addEventListener('mousemove', function(e) {
 function animate() {
     // Add a subtle continuous motion to targetX and targetY
     time += 0.01; // Increment time for smooth motion
-    const noiseX = Math.sin(time) * 0.15; // Small periodic motion for X
-    const noiseY = Math.cos(time) * 0.15; // Small periodic motion for Y
+    const noiseX = Math.sin(time) * 0.2; // Small periodic motion for X
+    const noiseY = Math.cos(time) * 0.2; // Small periodic motion for Y
 
     // Combine mouse movement with continuous motion
     const finalTargetX = targetX + noiseX;
@@ -138,16 +138,16 @@ const getChatResponse = async () => {
                 paragraph.appendChild(span);  
 
                 const typingInterval = setInterval(() => {
-                    chatBox.scrollTo({
-                        top: chatContainer.scrollHeight,
-                        behavior: 'smooth'
-                    });
                     span.textContent += subSentence[charIndex];
                     charIndex++;
                     if (charIndex === subSentence.length) {
                         clearInterval(typingInterval);
                         resolve();
                     }
+                    chatBox.scrollTo({
+                        top: chatContainer.scrollHeight,
+                        behavior: 'smooth'
+                    });
                 }, 35);
             });
         }
