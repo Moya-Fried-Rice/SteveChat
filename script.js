@@ -1,10 +1,4 @@
 import {model} from "./mainmodule.js";
-
-window.onload = function() {
-    var audio = document.getElementById('audioPlayer');
-    // Audio is muted and plays automatically
-};
-
 let x = 0;
 let y = 0;
 let targetX = 0;
@@ -20,8 +14,8 @@ document.addEventListener('mousemove', function(e) {
 function animate() {
     // Add a subtle continuous motion to targetX and targetY
     time += 0.01; // Increment time for smooth motion
-    const noiseX = Math.sin(time) * 0.2; // Small periodic motion for X
-    const noiseY = Math.cos(time) * 0.2; // Small periodic motion for Y
+    const noiseX = Math.sin(time) * 0.25; // Small periodic motion for X
+    const noiseY = Math.cos(time) * 0.25; // Small periodic motion for Y
 
     // Combine mouse movement with continuous motion
     const finalTargetX = targetX + noiseX;
@@ -50,16 +44,11 @@ function animate() {
 // Start the animation loop
 animate();
 
-
-// document.addEventListener('wheel', function(e) {
-//     e.preventDefault();
-// }, { passive: false });
-
 const chatInput = document.querySelector("#chat-input");
 const sendButton = document.querySelector("#send-btn");
 const chatContainer = document.querySelector(".chatbot-container");
 const chatBox = document.querySelector(".chat");
-
+const sampleQuestions = document.querySelector('.sample-questions');
 const audio = document.getElementById('audioPlayer');
 const steveButton = document.querySelector("#steve-button");
 const stoneClicked = new Audio("sounds/Stone_button_press.ogg");
@@ -73,6 +62,7 @@ const getChatResponse = async () => {
     console.log("User Typed:", message);
     const pEle = document.createElement("div");
 
+    sampleQuestions.style.display = 'none';
     audio.muted = false;  // Unmute the audio
     audio.play();  // Ensure it continues playing after unmuting
     sendButton.disabled = true; // Disable the send button at the start
@@ -227,5 +217,15 @@ chatInput.addEventListener("keydown", (e) =>{
     if(e.key == "Enter") {
         handleAPI();
     }
-})
+});
+
+const questionElements = document.querySelectorAll('.question');
+questionElements.forEach(question => {
+    question.addEventListener('click', (event) => {
+        const questionText = event.target.textContent;
+        chatInput.value = questionText;
+        handleAPI();
+    });
+});
+
 
