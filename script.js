@@ -54,36 +54,47 @@ const steveButton = document.querySelector("#steve-button");
 const stoneClicked = new Audio("sounds/Stone_button_press.ogg");
 const stoneUnclicked = new Audio("sounds/Stone_button_unpress.ogg");
 
-console.log(steveButton);
+let conversationHistory = [];
 
 const getChatResponse = async () => {
     const message = chatInput.value;
-    // Sanity check: Log the user input
-    console.log("User Typed:", message);
+    console.log("User:", message);
+
+    // Add the user's message to the conversation history
+    conversationHistory.push({
+        role: "user",
+        parts: [{ text: message }]
+    });
+
     const pEle = document.createElement("div");
 
     sampleQuestions.style.display = 'none';
-    audio.muted = false;  // Unmute the audio
-    audio.play();  // Ensure it continues playing after unmuting
-    sendButton.disabled = true; // Disable the send button at the start
+    audio.muted = false;
+    audio.play();
+    sendButton.disabled = true;
     chatInput.disabled = true;
     chatInput.placeholder = 'Steve is... "thinking"';
     stoneClicked.play();
 
-    // Change the image src to "steve-on.png"
     steveButton.src = "images/steve-on.png";
 
-    // After a delay, change the image back to "steve-off.png"
     setTimeout(() => {
         steveButton.src = "images/steve-off.png";
         stoneUnclicked.play();
-    }, 1500); // 2 seconds delay before switching back to off
+    }, 1500);
 
     try {
-        const result = await model.generateContent(message);
-        console.log("result: ", result);
+        // Pass the conversation history to the model
+        const result = await model.generateContent({
+            contents: conversationHistory
+        });
         const response = await result.response.text();
-        console.log("Response: ", response);
+
+        // Add the AI's response to the conversation history
+        conversationHistory.push({
+            role: "model",
+            parts: [{ text: response }]
+        });
 
         function splitParagraph(paragraph) {
             let parentheticalSentences = [];
@@ -110,7 +121,6 @@ const getChatResponse = async () => {
         }
 
         const sentences = splitParagraph(response);
-        console.log("Sentences: ", sentences);
 
         function typeSentence(subSentence, paragraph) {
             return new Promise(resolve => {
@@ -152,7 +162,7 @@ const getChatResponse = async () => {
                 const subSentences = sentence.match(/[^.!?]+(?:[.!?]+)?/g) || [sentence];
 
                 const bubble = document.createElement('div');
-                bubble.classList.add("chat-body-inner");
+                bubble.classList.add("chat-body-inner", "w-5/6");
 
                 const paragraph = document.createElement('span');
                 paragraph.classList.add('m-2');
@@ -168,9 +178,10 @@ const getChatResponse = async () => {
                     await typeSentence(subSentence, paragraph);
                     await pause();
                 }
+                console.log("Steve:", sentence);
             }
             
-            sendButton.disabled = false; // Re-enable the send button after typing
+            sendButton.disabled = false;
             chatInput.disabled = false;
             chatInput.focus();
             chatInput.placeholder = "Type your message...";
@@ -190,7 +201,6 @@ const getChatResponse = async () => {
     chatContainer.appendChild(pEle);
 };
 
-
 const handleAPI = () => {
     const userText = chatInput.value.trim();
     if(!userText) return;
@@ -200,9 +210,9 @@ const handleAPI = () => {
     const chatBubbble = document.createElement("div");
     chatBubbble.classList.add("chat-bubble");
     chatBubbble.innerHTML = `
-        <div class="chat-body-inner text-right p-5">
-            <p>${userText}</p>
-        </div>
+    <div class="chat-body-inner text-right p-5 w-5/6 ml-auto">
+        <p>${userText}</p>
+    </div>
     `;
     chatContainer.appendChild(chatBubbble);
     chatBox.scrollTo({
