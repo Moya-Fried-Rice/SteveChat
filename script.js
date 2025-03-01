@@ -38,7 +38,7 @@ function animate() {
     });
 
     // Request the next frame to keep animating
-    // requestAnimationFrame(animate);
+    requestAnimationFrame(animate);
 }
 
 // Start the animation loop
